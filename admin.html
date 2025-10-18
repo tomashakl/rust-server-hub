@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Configurator — Rust Single Server</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .form { max-width: 1000px; margin: 20px auto; background: var(--card); padding: 16px; border-radius: 16px; border:1.5px solid var(--accent) }
+    .row { display: grid; grid-template-columns: 220px 1fr; gap: 10px; margin-bottom: 10px; align-items: start }
+    label { color: #ffffff; font-size: 13px; font-weight: 700 }
+    input[type=text], input[type=url] { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); color: #fff }
+    .hint { grid-column: 2 / span 1; color: var(--muted); font-size: 12px; margin: -4px 0 8px }
+    .btnbar { display: flex; gap: 10px; margin-top: 12px }
+    textarea { width: 100%; height: 180px; padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); color: #fff; font-family: ui-monospace, SFMono-Regular, Menlo, monospace }
+    hr{border:0;border-top:1px solid rgba(255,255,255,.2);margin:16px 0}
+  </style>
+</head>
+<body class="theme-rust">
+  <main class="container">
+    <form class="form" id="formCfg" onsubmit="return false;">
+      <h3>Website</h3>
+      <div class="row"><label>Title</label><input id="siteTitle" type="text" placeholder="My Rust Server" /></div>
+      <div class="hint">Shown in the header. Keep it short (e.g., “My Rust Server”).</div>
+      <div class="row"><label>Tagline</label><input id="siteTagline" type="text" placeholder="Wipes · Events · Fair Play" /></div>
+      <div class="hint">A short slogan under the title.</div>
+      <div class="row"><label>Owner</label><input id="siteOwner" type="text" placeholder="Your Server Name" /></div>
+      <div class="hint">Displayed in the footer copyright line.</div>
+      <div class="row"><label>Discord</label><input id="linkDiscord" type="url" placeholder="https://discord.gg/..." /></div>
+      <div class="hint">Invite link to your Discord. Leave blank to hide the button.</div>
+      <div class="row"><label>Wipe Schedule</label><input id="linkWipe" type="url" placeholder="https://..." /></div>
+      <div class="hint">Link to your wipe schedule page. Leave blank to hide.</div>
+
+      <hr />
+      <h3>Server</h3>
+      <div class="row"><label>Name</label><input id="S_name" type="text" placeholder="Rust — Vanilla" /></div>
+      <div class="hint">Server display name (shown on the banner).</div>
+      <div class="row"><label>Region</label><input id="S_region" type="text" placeholder="EU" /></div>
+      <div class="hint">Optional (e.g., EU, NA, CZ).</div>
+      <div class="row"><label>Banner URL</label><input id="S_banner" type="url" placeholder="assets/server-banner.jpg" /></div>
+      <div class="hint">16:9 image path. Host locally in <code>assets/</code> or link to a CDN.</div>
+      <div class="row"><label>Map URL</label><input id="S_map" type="url" placeholder="https://your-map/index.html" /></div>
+      <div class="hint">Optional link to your live map page. If empty, the Map button is hidden.</div>
+      <div class="row"><label>Connect URL</label><input id="S_connect" type="text" placeholder="steam://connect/IP:PORT" /></div>
+      <div class="hint">Use <code>steam://connect/IPv4:PORT</code> (e.g., <code>steam://connect/203.0.113.10:28015</code>).</div>
+      <div class="row"><label>BattleMetrics serverId</label><input id="S_bm_id" type="text" placeholder="1234567" /></div>
+      <div class="hint">Your BattleMetrics server numeric ID. Needed for automatic stats.</div>
+      <div class="row"><label>BM Base URL</label><input id="S_bm_base" type="url" placeholder="https://api.battlemetrics.com" /></div>
+      <div class="hint">Leave default unless using a self-hosted mirror.</div>
+      <div class="row"><label>BM Authorization</label><input id="S_bm_auth" type="text" placeholder="Bearer YOUR_TOKEN (optional)" /></div>
+      <div class="hint">Optional Bearer token if your BM plan/API requires it.</div>
+      <div class="row"><label>Community Status URL</label><input id="S_status" type="url" placeholder="https://your-proxy/status.json" /></div>
+      <div class="hint">Alternative JSON endpoint if you don’t use BattleMetrics (must handle CORS).</div>
+
+      <div class="btnbar">
+        <button class="btn primary" id="btnGen">Generate config.json</button>
+        <button class="btn" id="btnLoad">Load current config.json</button>
+        <button class="btn" id="btnSaveLocal">Save to localStorage</button>
+        <button class="btn" id="btnLoadLocal">Load from localStorage</button>
+      </div>
+      <textarea id="out" readonly></textarea>
+    </form>
+  </main>
+
+  <script>
+    function dl(filename, text){
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([text], {type:'application/json'}));
+      a.download = filename; a.click(); URL.revokeObjectURL(a.href);
+    }
+    function $(id){ return document.getElementById(id); }
+    function current(){
+      const cfg = {
+        site: { title: $('#siteTitle').value, tagline: $('#siteTagline').value, owner: $('#siteOwner').value },
+        links: { discord: $('#linkDiscord').value, wipeSchedule: $('#linkWipe').value },
+        server: {
+          name: $('#S_name').value, region: $('#S_region').value, banner: $('#S_banner').value, mapUrl: $('#S_map').value,
+          connectUrl: $('#S_connect').value,
+          battlemetrics: { baseUrl: $('#S_bm_base').value || 'https://api.battlemetrics.com', serverId: $('#S_bm_id').value || '', headers: {} },
+          communityApi: { statusUrl: $('#S_status').value }
+        }
+      };
+      const auth = $('#S_bm_auth').value.trim(); if(auth){ cfg.server.battlemetrics.headers['Authorization'] = auth; }
+      return cfg;
+    }
+    function fill(c){
+      $('#siteTitle').value = c.site?.title || '';
+      $('#siteTagline').value = c.site?.tagline || '';
+      $('#siteOwner').value = c.site?.owner || '';
+      $('#linkDiscord').value = c.links?.discord || '';
+      $('#linkWipe').value = c.links?.wipeSchedule || '';
+      const S = c.server || {};
+      $('#S_name').value = S.name || ''; $('#S_region').value = S.region || '';
+      $('#S_banner').value = S.banner || ''; $('#S_map').value = S.mapUrl || '';
+      $('#S_connect').value = S.connectUrl || '';
+      $('#S_bm_id').value = S.battlemetrics?.serverId || ''; $('#S_bm_base').value = S.battlemetrics?.baseUrl || 'https://api.battlemetrics.com';
+      $('#S_bm_auth').value = (S.battlemetrics?.headers?.Authorization) || ''; $('#S_status').value = S.communityApi?.statusUrl || '';
+    }
+    document.getElementById('btnGen').addEventListener('click', ()=>{
+      const json = JSON.stringify(current(), null, 2);
+      $('#out').value = json; dl('config.json', json);
+    });
+    document.getElementById('btnLoad').addEventListener('click', async ()=>{
+      try{
+        const res = await fetch('config.json', {cache:'no-store'});
+        const c = await res.json(); fill(c); $('#out').value = JSON.stringify(c, null, 2);
+      }catch(e){ alert('config.json not found'); }
+    });
+    document.getElementById('btnSaveLocal').addEventListener('click', ()=>{
+      localStorage.setItem('portalCfg1v5', JSON.stringify(current())); alert('Saved locally.');
+    });
+    document.getElementById('btnLoadLocal').addEventListener('click', ()=>{
+      const raw = localStorage.getItem('portalCfg1v5'); if(!raw) return alert('Nothing saved.');
+      const c = JSON.parse(raw); fill(c); $('#out').value = JSON.stringify(c, null, 2);
+    });
+  </script>
+</body>
+</html>

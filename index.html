@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rust Server — Single Server</title>
+  <meta name="description" content="Rust-only portal with one server: live status, connect button, banner and optional map link." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="theme-rust">
+  <header class="site-header">
+    <div class="overlay"></div>
+    <div class="inner">
+      <div class="brand">
+        <img src="assets/rust-logo.jpg" alt="Rust Logo" class="logo" />
+        <div>
+          <h1 id="siteTitle">My Rust Server</h1>
+          <p id="siteTagline">Wipes · Events · Fair Play</p>
+        </div>
+      </div>
+      <nav class="actions">
+        <a id="linkDiscord" class="btn small" href="#" target="_blank" rel="noopener">Discord</a>
+        <a id="linkWipeSchedule" class="btn small" href="#" target="_blank" rel="noopener">Wipe Schedule</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container grid">
+    <section class="card wide hero">
+      <div class="hero-text">
+        <h2>Rust Only — Single Server</h2>
+        <p>Click <strong>Connect</strong> to open Steam and join directly (if Rust is installed). Host anywhere, fully static.</p>
+        <ul class="plain">
+          <li>BattleMetrics / community API → Online, Players, Map, Last Wipe</li>
+          <li>Card includes a <strong>banner</strong>, <em>Connect</em> and optional <strong>Map</strong> link</li>
+        </ul>
+      </div>
+      <div class="hero-art">
+        <img src="assets/server-banner.jpg" alt="Sample banner" />
+      </div>
+    </section>
+
+    <section class="card wide" id="server">
+      <h3>Server</h3>
+      <div class="server-card">
+        <figure class="banner">
+          <img id="server_banner" src="assets/server-banner.jpg" alt="Server banner" />
+          <figcaption id="server_name" class="banner-title">Server</figcaption>
+        </figure>
+        <div class="head">
+          <p class="muted small" id="server_region">Region / EU</p>
+          <div class="btns">
+            <a id="server_map" class="btn small" href="#" target="_blank" rel="noopener" style="display:none">Map</a>
+            <a id="server_connect" class="btn primary" href="#" target="_blank" rel="noopener">Connect</a>
+          </div>
+        </div>
+        <div class="status-grid">
+          <div><div class="stat-label">Status</div><div id="server_online" class="stat-value">-</div></div>
+          <div><div class="stat-label">Players</div><div id="server_players" class="stat-value">-</div></div>
+          <div><div class="stat-label">Map</div><div id="server_mapName" class="stat-value">-</div></div>
+          <div><div class="stat-label">Last wipe</div><div id="server_wipe" class="stat-value">-</div></div>
+        </div>
+        <details class="mt">
+          <summary>Players online</summary>
+          <ul id="server_list" class="players"></ul>
+        </details>
+      </div>
+    </section>
+
+    <section class="card" id="rules">
+      <h3>Rules</h3>
+      <ul>
+        <li>No cheats, scripts, or macros.</li>
+        <li>Respect other players and admins.</li>
+        <li>No racism/toxic behavior.</li>
+        <li>AFK only in safe zones (if allowed).</li>
+      </ul>
+    </section>
+
+    <section class="card" id="news">
+      <h3>News</h3>
+      <article class="news-item">
+        <time datetime="2025-10-17">Oct 17, 2025</time>
+        <h4>Hub launched</h4>
+        <p>We’ve launched the single-server portal.</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-overlay"></div>
+    <div class="footer-inner">
+      <p>© <span id="year"></span> <span id="ownerName">Your Server Name</span> · MIT license.</p>
+      <p class="muted small">Static website for any hosting. Connect via Steam protocol.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

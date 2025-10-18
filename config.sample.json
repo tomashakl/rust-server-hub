@@ -1,0 +1,26 @@
+{
+  "site": {
+    "title": "My Rust Server",
+    "tagline": "Wipes · Events · Fair Play",
+    "owner": "Your Server Name"
+  },
+  "links": {
+    "discord": "https://discord.gg/yourinvite",
+    "wipeSchedule": "https://example.com/wipes"
+  },
+  "server": {
+    "name": "Rust — Vanilla",
+    "region": "EU",
+    "banner": "assets/server-banner.jpg",
+    "mapUrl": "",
+    "connectUrl": "steam://connect/127.0.0.1:28015",
+    "battlemetrics": {
+      "baseUrl": "https://api.battlemetrics.com",
+      "serverId": "",
+      "headers": {}
+    },
+    "communityApi": {
+      "statusUrl": ""
+    }
+  }
+}
